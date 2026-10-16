@@ -1,3 +1,40 @@
+# NOVOTEC 3-LP-0200021-2 — RS-232 Adapter (Reverse-Engineered)
+
+![License](https://img.shields.io/github/license/feiglein74/novotec-rs232-adapter)
+![Interface](https://img.shields.io/badge/interface-RS--232%20%2F%20TTL-555)
+
+Reverse-engineered circuit analysis and pinout of the **NOVOTEC (PCB marking: NOVTEC)
+3-LP-0200021-2** board: an opto-buffered, full-duplex TTL ↔ RS-232 adapter, most likely
+from a fuel-station outdoor payment terminal (OPT) talking to a fuel pump controller.
+Built around MAX232, 2× HCPL-2531 and 74HC367.
+
+> Detailed documentation is in German.
+
+## Key findings
+
+- **Data lines work:** TXD and RXD were verified in both directions.
+- **Handshake lines are dead on the RS-232 side.** They are wired on the board, but the EMI
+  filters at connector pins 4 and 5 are not fitted, so the signals never reach the connector.
+- **The MCU always sees handshake-in as asserted.** A 14.8 kΩ bias resistor from V+ to MAX232 R2IN holds it there.
+- **Pin 6 is a constant ≈ +9.7 V** ("fake asserted" DSR/DCD towards the remote device).
+- **No galvanic isolation.** The optocouplers buffer transients, but both sides share ground.
+- **Supply:** 9–12 V DC into a 7805, giving 5 V logic and ±9.7 V from the MAX232 charge pump.
+
+### 6-pin connector (RS-232 side)
+
+| Pin | Function | Idle level |
+|---|---|---|
+| 1 | GND | 0 V |
+| 2 | RXD in → MAX232 R1IN | — |
+| 3 | TXD out ← MAX232 T1OUT | −9.7 V (mark) |
+| 4 | handshake in — EMI filter not fitted | — |
+| 5 | handshake out — EMI filter not fitted | — |
+| 6 | constant +9.7 V ("always ready") | +9.7 V |
+
+Signal paths, the TTL header, the test log and open questions are covered below (German).
+
+---
+
 # RS-232-Adapter — Schaltungsanalyse
 
 ## Identifikation
